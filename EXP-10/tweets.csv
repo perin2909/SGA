@@ -1,0 +1,20 @@
+Dummy Row,To,Be,Skipped
+id,tweetText,label
+1,I absolutely love this new update! It is very good 😊,positive
+2,The customer service was extremely bad and terrible.,negative
+3,I went to the store today.,neutral
+4,This product is AWESOME!!! Best purchase ever. @user https://example.com,positive
+5,Wow, what a complete waste of time and money 😡 #disappointed,negative
+6,Just checking my feed before work.,neutral
+7,I can't believe how great the concert was last night! 🎸,positive
+8,My flight was delayed by 4 hours. So frustrated right now.,negative
+9,The sky is blue and the grass is green.,neutral
+10,Totally blown away by the amazing performance. 10/10 would recommend.,positive
+11,This is the worst food I have ever tasted. Yuck.,negative
+12,Reading a book in the library.,neutral
+13,Super excited for the weekend! 🎉 #FridayFeeling,positive
+14,I am so angry that my package still hasn't arrived.,negative
+15,It is currently 72 degrees outside.,neutral
+16,Thank you @support for fixing my issue so quickly! You guys rock!,positive
+17,My phone keeps crashing after the latest update. Fix it NOW.,negative
+18,I had a sandwich for lunch.,neutral

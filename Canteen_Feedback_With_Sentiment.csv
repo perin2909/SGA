@@ -1,0 +1,21 @@
+Student_Staff_ID,Canteen_Feedback,Sentiment_Score,Sentiment
+ST2003,The food here is amazing and very affordable!,0.6239,Positive
+ST2001,"Terrible experience, the food was cold and tasteless.",-0.4767,Negative
+S1005,"It's okay, nothing special but fills the stomach.",-0.0462,Neutral
+S1011,"I love the new menu options, very healthy.",0.8016,Positive
+S1004,"Wait times are too long during lunch hour, but the food is decent.",0.0,Neutral
+S1003,"The coffee is always burnt, please fix the machine.",0.3182,Positive
+S1015,Great service from the staff today!,0.6588,Positive
+ST2002,Prices have gone up but the portions are smaller now.,0.0,Neutral
+S1010,The seating area is always clean and well maintained.,0.5859,Positive
+S1008,"I found a hair in my soup, absolutely disgusting.",-0.5709,Negative
+S1014,"Average canteen food, nothing to complain or rave about.",0.2755,Positive
+S1007,The vegan options are fantastic and taste great.,0.8271,Positive
+S1006,Please add more dessert choices.,0.3182,Positive
+S1009,The biryani today was incredibly flavorful and fresh.,0.3744,Positive
+ST2004,The cashier was very rude when I asked a question.,-0.5095,Negative
+S1002,Decent food for the price.,0.0,Neutral
+S1013,I eat here every day and the quality is very consistent.,0.0,Neutral
+ST2005,The sandwiches were stale and definitely not fresh.,0.1872,Positive
+S1001,Water dispenser is always empty by 1 PM.,-0.2023,Negative
+S1012,"Absolutely delicious pasta, will definitely order again!",0.7897,Positive

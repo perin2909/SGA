@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIT - AI Privacy Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#05050a',
+                            panel: 'rgba(255, 255, 255, 0.03)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            primary: '#6366f1',
+                            primaryHover: '#4f46e5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05050a;
+            color: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-header {
+            background: rgba(5, 5, 10, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Ambient Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        .orb-1 { top: -10%; left: -5%; width: 50vw; height: 50vw; background: rgba(99, 102, 241, 0.3); }
+        .orb-2 { bottom: -10%; right: -5%; width: 40vw; height: 40vw; background: rgba(168, 85, 247, 0.2); }
+        .orb-3 { top: 40%; left: 60%; width: 30vw; height: 30vw; background: rgba(16, 185, 129, 0.15); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+        /* Custom Checkbox Toggle */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #10b981;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #10b981;
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: #334155;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(1.5rem);
+        }
+
+        /* Toast Animation */
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideUp 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <!-- Ambient Background -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-50 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-lg md:text-xl font-bold text-white tracking-tight">Symbiosis Institute of Technology</h1>
+                <p class="text-xs text-indigo-300 font-medium tracking-wide uppercase">AI Privacy & Control Portal</p>
+            </div>
+        </div>
+        <div class="hidden md:flex items-center gap-2">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span class="text-xs font-medium text-slate-300">Secure Connection</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Profile & Mentoring -->
+            <div class="lg:col-span-4 space-y-8">
+                
+                <!-- Student Profile -->
+                <div class="glass rounded-2xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full bg-slate-800 p-1 border border-indigo-500/30">
+                            <div class="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-inner">
+                                PP
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Perin Patel</h2>
+                            <p class="text-sm text-indigo-400 font-medium">Student Dashboard</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-white/5">
+                            <span class="text-sm text-slate-400">PRN Number</span>
+                            <span class="text-sm font-semibold text-slate-200 tracking-wider">26070122259</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-white/5">
+                            <span class="text-sm text-slate-400">Branch</span>
+                            <span class="text-sm font-semibold text-slate-200">CSE</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-sm text-slate-400">Division</span>
+                            <span class="text-sm font-semibold text-slate-200">B3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Human Mentoring Section (Green Hat Approach) -->
+                <div class="glass-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -right-3 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg shadow-emerald-500/20">
+                        Green Hat Solution
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Request Human Mentoring
+                    </h3>
+                    <p class="text-sm text-slate-400 mb-6 leading-relaxed">
+                        Feeling overwhelmed by AI recommendations or concerned about bias? Bypass the system and request a direct 1-on-1 mentoring session to regain control of your learning.
+                    </p>
+                    
+                    <div class="bg-slate-900/50 rounded-xl p-4 border border-white/5 mb-5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-rose-500 flex items-center justify-center font-bold text-white text-lg shadow-md">
+                            RP
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white text-sm">Prof. Riddhi Pankhadiwala</p>
+                            <p class="text-xs text-slate-400">Critical Thinking Faculty</p>
+                        </div>
+                    </div>
+
+                    <button onclick="showToast('Mentoring request sent successfully to Prof. Riddhi Pankhadiwala. Check your university email for the meeting link.', 'success')" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] flex justify-center items-center gap-2">
+                        Schedule Direct Session
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Privacy Controls & Manual Input -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <!-- Section 1: AI Tracking Preferences -->
+                <div class="glass rounded-2xl p-6 md:p-8 relative">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            AI Tracking Preferences
+                        </h2>
+                        <p class="text-slate-400 text-sm">
+                            Manage exactly how the tech company's AI interacts with your academic data. Your choices here directly override automated institutional defaults, addressing <strong class="text-red-400 font-medium">Red Hat</strong> concerns of privacy loss.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Toggle 1 -->
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start sm:items-center justify-between gap-4 transition-colors hover:bg-white/10">
+                            <div>
+                                <h4 class="text-white font-medium text-base">Automated Progress Tracking</h4>
+                                <p class="text-sm text-slate-400 mt-1 max-w-xl">Allows the AI to continuously monitor your quiz scores, time spent on modules, and interaction data to build a profile.</p>
+                            </div>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in flex-shrink-0 mt-1 sm:mt-0">
+                                <input type="checkbox" name="toggle1" id="toggle1" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onclick="handleToggle('toggle1')" />
+                                <label for="toggle1" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-600 cursor-pointer"></label>
+                            </div>
+                        </div>
+
+                        <!-- Toggle 2 -->
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start sm:items-center justify-between gap-4 transition-colors hover:bg-white/10">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-white font-medium text-base">Data Anonymization</h4>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">RECOMMENDED</span>
+                                </div>
+                                <p class="text-sm text-slate-400 mt-1 max-w-xl">Strips personally identifiable information (PII) before your data hits the tech company's servers, solving <strong class="text-slate-300">Black Hat</strong> security risks.</p>
+                            </div>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in flex-shrink-0 mt-1 sm:mt-0">
+                                <input type="checkbox" name="toggle2" id="toggle2" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onclick="handleToggle('toggle2')" />
+                                <label for="toggle2" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-600 cursor-pointer"></label>
+                            </div>
+                        </div>
+
+                        <!-- Toggle 3 -->
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start sm:items-center justify-between gap-4 transition-colors hover:bg-white/10">
+                            <div>
+                                <h4 class="text-white font-medium text-base">Faculty At-Risk Alerts</h4>
+                                <p class="text-sm text-slate-400 mt-1 max-w-xl">Allows the AI to proactively notify faculty if it determines you are falling behind, based on algorithmic predictions.</p>
+                            </div>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in flex-shrink-0 mt-1 sm:mt-0">
+                                <input type="checkbox" name="toggle3" id="toggle3" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onclick="handleToggle('toggle3')" />
+                                <label for="toggle3" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-600 cursor-pointer"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Manual Goal Input (Privacy Safe Alternative) -->
+                <div class="glass-card rounded-2xl p-6 md:p-8">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Manual Goal Input (Privacy-Safe)
+                        </h2>
+                        <p class="text-slate-400 text-sm">
+                            If you disable Automated Progress Tracking, use this form to safely request personalized learning materials. Your inputs are processed locally and <strong class="text-white">not</strong> stored in the cloud.
+                        </p>
+                    </div>
+
+                    <form id="manualGoalForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Subject Selection</label>
+                                <div class="relative">
+                                    <select required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none transition-colors">
+                                        <option value="" disabled selected>Select a subject...</option>
+                                        <option value="ct">Critical Thinking</option>
+                                        <option value="ds">Data Structures</option>
+                                        <option value="dbms">Database Management</option>
+                                        <option value="os">Operating Systems</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Target Proficiency</label>
+                                <div class="relative">
+                                    <select required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none transition-colors">
+                                        <option value="beginner">Beginner (Review Basics)</option>
+                                        <option value="intermediate" selected>Intermediate (Practice Problems)</option>
+                                        <option value="advanced">Advanced (Deep Dive)</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Specific Learning Goal</label>
+                            <textarea required rows="3" placeholder="E.g., I need materials to understand the 'Six Thinking Hats' methodology and how to apply it to case scenarios..." class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none transition-colors"></textarea>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 text-white text-sm font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] flex items-center gap-2">
+                                Generate Study Plan Safely
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <script>
+        // Custom Toast Notification System (replaces alerts)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-md border shadow-lg max-w-sm w-full`;
+            
+            // Icon and styling based on type
+            let iconHtml = '';
+            if (type === 'success') {
+                toast.classList.add('bg-emerald-900/80', 'border-emerald-500/50', 'text-emerald-50');
+                iconHtml = `<div class="bg-emerald-500/20 p-1.5 rounded-full"><svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>`;
+            } else {
+                toast.classList.add('bg-indigo-900/80', 'border-indigo-500/50', 'text-indigo-50');
+                iconHtml = `<div class="bg-indigo-500/20 p-1.5 rounded-full"><svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`;
+            }
+
+            toast.innerHTML = `
+                ${iconHtml}
+                <p class="text-sm font-medium leading-tight flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="text-white/50 hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // Handle Toggle Interactions
+        function handleToggle(id) {
+            const checkbox = document.getElementById(id);
+            const stateText = checkbox.checked ? 'enabled' : 'disabled';
+            let settingName = '';
+            
+            if (id === 'toggle1') settingName = 'Automated Progress Tracking';
+            if (id === 'toggle2') settingName = 'Data Anonymization';
+            if (id === 'toggle3') settingName = 'Faculty At-Risk Alerts';
+
+            showToast(`${settingName} has been ${stateText}. Preferences saved securely.`, 'info');
+        }
+
+        // Handle Form Submission
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            // Reset form for UX
+            event.target.reset();
+            showToast('Learning goals submitted securely. Generating personalized curriculum without cloud tracking.', 'success');
+        }
+    </script>
+</body>
+</html>
